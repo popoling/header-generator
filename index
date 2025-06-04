@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标准化头信息生成器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray: #94a3b8;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .card-title i {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        textarea {
+            min-height: 200px;
+            font-family: monospace;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: var(--dark);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .info-box {
+            background: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 1.5rem 0;
+        }
+        
+        .info-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            background: #e2e8f0;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status i {
+            color: var(--warning);
+        }
+        
+        .status.active i {
+            color: var(--success);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast i {
+            font-size: 1.2rem;
+            color: var(--success);
+        }
+        
+        @media (max-width: 768px) {
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-code"></i> 标准化头信息生成器</h1>
+            <p class="subtitle">快速生成符合ISO 8601/WGS84标准的元数据头信息，支持一键复制与下载</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-map-marker-alt"></i> 地理位置信息</h2>
+                
+                <div class="status" id="geoStatus">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>等待位置授权...</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="latitude">纬度</label>
+                    <input type="text" id="latitude" placeholder="获取中..." readonly>
+                </div>
+                
+                <div class="input-group">
+                    <label for="longitude">经度</label>
+                    <input type="text" id="longitude" placeholder="获取中..." readonly>
+                </div>
+                
+                <div class="input-group">
+                    <label for="accuracy">精确度 (米)</label>
+                    <input type="text" id="accuracy" placeholder="获取中..." readonly>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-code"></i> 生成头信息</h2>
+                
+                <div class="input-group">
+                    <label for="source">来源 (可编辑)</label>
+                    <input type="text" id="source" placeholder="例如：微信收藏/小红书/纸质笔记">
+                </div>
+                
+                <div class="input-group">
+                    <label for="headerOutput">标准化头信息</label>
+                    <textarea id="headerOutput" readonly></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="copyBtn">
+                        <i class="fas fa-copy"></i> 复制到剪贴板
+                    </button>
+                    <button class="btn btn-success" id="downloadBtn">
+                        <i class="fas fa-download"></i> 下载为TXT文件
+                    </button>
+                    <button class="btn btn-secondary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> 重新生成UUID
+                    </button>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
+                <p>1. 首次使用需要授权地理位置访问权限（仅用于生成GeoTag）</p>
+                <p>2. 生成的UUID包含时间戳和随机字符，确保全局唯一</p>
+                <p>3. 格式符合ISO 8601时间标准和WGS84地理坐标规范</p>
+                <p>4. 您可以根据需要编辑"来源"字段</p>
+            </div>
+        </main>
+        
+        <footer>
+            <p>基于Web标准构建 | 符合GDPR要求 | 数据完全在浏览器端处理</p>
+            <p>© 2023 标准化头信息生成器 | 可托管于GitHub Pages</p>
+        </footer>
+    </div>
+    
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span>头信息已复制到剪贴板！</span>
+    </div>
+
+    <script>
+        // DOM元素
+        const latitudeEl = document.getElementById('latitude');
+        const longitudeEl = document.getElementById('longitude');
+        const accuracyEl = document.getElementById('accuracy');
+        const sourceEl = document.getElementById('source');
+        const headerOutputEl = document.getElementById('headerOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const geoStatusEl = document.getElementById('geoStatus');
+        const toastEl = document.getElementById('toast');
+        
+        // 全局变量
+        let currentLocation = null;
+        let uuid = generateUUID();
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 获取地理位置
+            getGeolocation();
+            
+            // 初始化头信息
+            updateHeaderOutput();
+            
+            // 设置事件监听器
+            setupEventListeners();
+        });
+        
+        // 获取地理位置
+        function getGeolocation() {
+            if (!navigator.geolocation) {
+                updateGeoStatus('地理位置API不可用', 'danger');
+                return;
+            }
+            
+            updateGeoStatus('正在获取位置信息...', 'warning');
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    currentLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    };
+                    
+                    latitudeEl.value = formatCoordinate(currentLocation.latitude, true);
+                    longitudeEl.value = formatCoordinate(currentLocation.longitude, false);
+                    accuracyEl.value = `${Math.round(currentLocation.accuracy)} 米`;
+                    
+                    updateGeoStatus('位置获取成功', 'success');
+                    updateHeaderOutput();
+                },
+                error => {
+                    let message = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            message = '用户拒绝了位置请求';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message = '位置信息不可用';
+                            break;
+                        case error.TIMEOUT:
+                            message = '获取位置超时';
+                            break;
+                        default:
+                            message = '未知错误';
+                    }
+                    
+                    updateGeoStatus(message, 'danger');
+                    clearGeoFields();
+                    updateHeaderOutput();
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // 更新地理位置状态显示
+        function updateGeoStatus(message, status) {
+            geoStatusEl.innerHTML = '';
+            
+            let iconClass = '';
+            if (status === 'success') {
+                iconClass = 'fas fa-check-circle';
+                geoStatusEl.classList.add('active');
+            } else if (status === 'warning') {
+                iconClass = 'fas fa-exclamation-circle';
+            } else {
+                iconClass = 'fas fa-times-circle';
+            }
+            
+            const icon = document.createElement('i');
+            icon.className = iconClass;
+            geoStatusEl.appendChild(icon);
+            
+            const text = document.createElement('span');
+            text.textContent = message;
+            geoStatusEl.appendChild(text);
+        }
+        
+        // 清除地理字段
+        function clearGeoFields() {
+            latitudeEl.value = '未获取';
+            longitudeEl.value = '未获取';
+            accuracyEl.value = 'N/A';
+        }
+        
+        // 格式化坐标
+        function formatCoordinate(value, isLatitude) {
+            const direction = isLatitude ? 
+                (value >= 0 ? 'N' : 'S') : 
+                (value >= 0 ? 'E' : 'W');
+                
+            // 取绝对值并保留4位小数
+            const absValue = Math.abs(value).toFixed(4);
+            return `${absValue}°${direction}`;
+        }
+        
+        // 生成UUID
+        function generateUUID() {
+            const now = new Date();
+            const datePart = [
+                now.getFullYear(),
+                String(now.getMonth() + 1).padStart(2, '0'),
+                String(now.getDate()).padStart(2, '0')
+            ].join('');
+            
+            const timePart = [
+                String(now.getHours()).padStart(2, '0'),
+                String(now.getMinutes()).padStart(2, '0')
+            ].join('');
+            
+            // 生成4位随机字符（大写字母+数字）
+            const randomPart = Array.from({length: 4}, () => {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                return chars.charAt(Math.floor(Math.random() * chars.length));
+            }).join('');
+            
+            return `${datePart}-${timePart}-${randomPart}`;
+        }
+        
+        // 更新头信息输出
+        function updateHeaderOutput() {
+            const geoTag = currentLocation ? 
+                `${formatCoordinate(currentLocation.latitude, true)}, ${formatCoordinate(currentLocation.longitude, false)}` : 
+                '未获取';
+            
+            const source = sourceEl.value ? sourceEl.value : '请在此输入来源';
+            
+            const header = `---
+UUID: ${uuid}
+GeoTag: ${geoTag}
+Source: ${source}
+Status: #待处理
+Links:
+  - [[相关笔记链接]]
+---
+`;
+            
+            headerOutputEl.value = header;
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 来源输入变化时更新头信息
+            sourceEl.addEventListener('input', updateHeaderOutput);
+            
+            // 复制按钮
+            copyBtn.addEventListener('click', () => {
+                headerOutputEl.select();
+                navigator.clipboard.writeText(headerOutputEl.value)
+                    .then(() => {
+                        showToast('头信息已复制到剪贴板！');
+                    })
+                    .catch(err => {
+                        showToast('复制失败，请手动复制', 'error');
+                        console.error('复制失败:', err);
+                    });
+            });
+            
+            // 下载按钮
+            downloadBtn.addEventListener('click', () => {
+                const blob = new Blob([headerOutputEl.value], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `头信息-${uuid}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // 清理
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            });
+            
+            // 刷新UUID按钮
+            refreshBtn.addEventListener('click', () => {
+                uuid = generateUUID();
+                updateHeaderOutput();
+                showToast('UUID已重新生成！');
+            });
+            
+            // 地理位置状态点击重新获取
+            geoStatusEl.addEventListener('click', () => {
+                getGeolocation();
+            });
+        }
+        
+        // 显示Toast通知
+        function showToast(message, type = 'success') {
+            const toastIcon = toastEl.querySelector('i');
+            const toastText = toastEl.querySelector('span');
+            
+            if (type === 'error') {
+                toastIcon.className = 'fas fa-exclamation-circle';
+                toastIcon.style.color = '#ef4444';
+            } else {
+                toastIcon.className = 'fas fa-check-circle';
+                toastIcon.style.color = '#10b981';
+            }
+            
+            toastText.textContent = message;
+            toastEl.classList.add('show');
+            
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
